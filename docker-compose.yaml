@@ -1,0 +1,13 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    container_name: local-postgres-music-catalog
+    ports: 
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: music_catalog_db
+    volumes:
+      - /home/aththobari/Documents/BackEnd/Belajar_Golang/db_music_catalog:/var/lib/postgresql/data

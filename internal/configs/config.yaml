@@ -1,0 +1,5 @@
+service: 
+  port: ":9999"
+
+database:
+  dataSourceName: "postgres://admin:root@localhost:5432/music_catalog_db?sslmode=disable"
