@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=handler.go -destination=handler_mock_test.go -package=memberships
 type service interface {
 	SignUp(request memberships.SignUpRequest) error
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/AthThobari/simple_music_catalog_go/internal/configs"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_service_SignUp(t *testing.T) {
@@ -36,6 +37,35 @@ func Test_service_SignUp(t *testing.T) {
 			mockFn: func(args args) {
 				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, sql.ErrNoRows)
 				mockRepo.EXPECT().CreateUser(gomock.Any()).Return(nil)
+			},
+		},
+		{
+			name: "failed when GetUser",
+			args: args{
+				request: memberships.SignUpRequest{
+					Email: "test@gmail.com",
+					Username: "testusername",
+					Password: "password",
+				},
+			},
+			wantErr: true,
+			mockFn: func(args args) {
+				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, assert.AnError)
+			},
+		},
+		{
+			name: "failed when CreateUser",
+			args: args{
+				request: memberships.SignUpRequest{
+					Email: "test@gmail.com",
+					Username: "testusername",
+					Password: "password",
+				},
+			},
+			wantErr: true,
+			mockFn: func(args args) {
+				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, sql.ErrNoRows)
+				mockRepo.EXPECT().CreateUser(gomock.Any()).Return(assert.AnError)
 			},
 		},
 	}
