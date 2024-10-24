@@ -147,13 +147,25 @@ func Test_repository_GetUser(t *testing.T) {
 		},
 		wantErr: false,
 		mockFn: func(args args) {
-			mock.ExpectBegin()
 
-			mock.ExpectQuery(`SELECT FROM "users" .+`).WithArgs(args.email, args.username, args.id).
-			WillReturnRows(sqlmock.NewRows([]string{"id", "created_at", "updated_at", "email", "password", "created_by", "updated_by"}).AddRow(1, ))
+			mock.ExpectQuery(`SELECT \* FROM "users" .+`).WithArgs(args.email, args.username, args.id, 1).
+			WillReturnRows(sqlmock.NewRows([]string{"id", "created_at", "updated_at", "email", "username", "password", "created_by", "updated_by"}).AddRow(1,now, now, "test@gmail.com", "test", "test", "test@gmail.com", "test@gmail.com" ))
 
+		},
+		},
+		{
+		name: "failed",	
+		args: args{
+			email: "test@gmail.com",
+			username: "test",
+		},
+		want: nil,
+		wantErr: true,
+		mockFn: func(args args) {
 
-			mock.ExpectCommit()
+			mock.ExpectQuery(`SELECT \* FROM "users" .+`).WithArgs(args.email, args.username, args.id, 1).
+			WillReturnError(assert.AnError)
+
 		},
 		},
 	}
