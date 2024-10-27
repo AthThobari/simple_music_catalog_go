@@ -39,6 +39,17 @@ func TestHandler_Login(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "failed",
+			mockFn: func() {
+				mockSvc.EXPECT().Login(memberships.LoginRequest{
+					Email: "test@gmail.com",
+					Password: "password",
+				}).Return("", assert.AnError)
+			},
+			expectedStatusCode: 400,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -51,10 +62,9 @@ func TestHandler_Login(t *testing.T) {
 			h.RegisterRoute()
 			w := httptest.NewRecorder()
 
-			endpoint := `memberships/sign_up`
-			model := memberships.SignUpRequest{
+			endpoint := `/memberships/login`
+			model := memberships.LoginRequest{
 				Email:    "test@gmail.com",
-				Username: "testusername",
 				Password: "password",
 			}
 

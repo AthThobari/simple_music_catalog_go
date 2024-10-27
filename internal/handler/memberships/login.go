@@ -1,6 +1,7 @@
 package memberships
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
@@ -18,6 +19,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 	accessToken, err := h.service.Login(req)
 	if err != nil {
+		fmt.Println("test case ter execute")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
