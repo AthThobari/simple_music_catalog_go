@@ -1,13 +1,13 @@
 package memberships
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/configs"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func Test_service_SignUp(t *testing.T) {
@@ -35,7 +35,7 @@ func Test_service_SignUp(t *testing.T) {
 			},
 			wantErr: false,
 			mockFn: func(args args) {
-				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, sql.ErrNoRows)
+				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, gorm.ErrRecordNotFound)
 				mockRepo.EXPECT().CreateUser(gomock.Any()).Return(nil)
 			},
 		},
@@ -64,7 +64,7 @@ func Test_service_SignUp(t *testing.T) {
 			},
 			wantErr: true,
 			mockFn: func(args args) {
-				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, sql.ErrNoRows)
+				mockRepo.EXPECT().GetUser(args.request.Email, args.request.Username, uint(0)).Return(nil, gorm.ErrRecordNotFound)
 				mockRepo.EXPECT().CreateUser(gomock.Any()).Return(assert.AnError)
 			},
 		},
