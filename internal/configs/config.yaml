@@ -3,3 +3,7 @@ service:
 
 database:
   dataSourceName: "postgres://admin:root@localhost:5432/music_catalog_db?sslmode=disable"
+
+spotifyConfig:
+  clientID: ""
+  clitenSecret: ""
