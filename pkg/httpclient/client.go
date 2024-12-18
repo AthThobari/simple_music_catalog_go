@@ -2,6 +2,8 @@ package httpclient
 
 import "net/http"
 
+
+//go:generate mockgen -source=client.go -destination=client_mock.go -package=tracks
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
