@@ -2,12 +2,17 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/configs"
+	membershipsHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/memberships"
+	trackHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/tracks"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
 	membershipsRepo "github.com/AthThobari/simple_music_catalog_go/internal/repository/memberships"
+	"github.com/AthThobari/simple_music_catalog_go/internal/repository/spotify"
 	membershipsSvc "github.com/AthThobari/simple_music_catalog_go/internal/service/memberships"
-	membershipsHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/memberships"
+	"github.com/AthThobari/simple_music_catalog_go/internal/service/memberships/tracks"
+	"github.com/AthThobari/simple_music_catalog_go/pkg/httpclient"
 	"github.com/AthThobari/simple_music_catalog_go/pkg/internalsql"
 	"github.com/gin-gonic/gin"
 )
@@ -42,13 +47,20 @@ func main() {
 	
 	r:= gin.Default()
 
+	httpclient := httpclient.NewClient(&http.Client{})
+
+	spotifyOutbound := spotify.NewSpotifyOutbound(cfg, *httpclient)
+
 	membershipsRepo := membershipsRepo.NewRepository(db)
 
     membershipsSvc := membershipsSvc.NewService(cfg, membershipsRepo)	
+	trackSvc := tracks.NewService(spotifyOutbound)
 
 	membershipsHandler := membershipsHandler.NewHandler(r, membershipsSvc)
-
 	membershipsHandler.RegisterRoute()
+
+	tracksHandler := trackHandler.NewHandler(r, trackSvc)
+	tracksHandler.RegisterRoute()
 	
 
 	r.Run(cfg.Service.Port)
