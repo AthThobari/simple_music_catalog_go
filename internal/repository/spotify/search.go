@@ -77,7 +77,7 @@ func (o *outbound) Search(ctx context.Context, query string, limit, offset int) 
 	req.Header.Set("Authorization", bearerToken)
 
 	resp, err := o.client.Do(req)
-	if resp != nil {
+	if err != nil {
 		log.Error().Err(err).Msg("error execute search request for spotify")
 		return nil, err
 	}
