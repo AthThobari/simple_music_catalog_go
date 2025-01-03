@@ -2,6 +2,8 @@ package spotify
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -22,38 +24,44 @@ func (o outbound) GetTokenDetails() (string, string, error) {
 		if err != nil {
 			return "", "", err
 		}
-		return o.AccessToken, o.TokenType, nil
-		// call API spotify token here
 	}
 	return o.AccessToken, o.TokenType, nil
 }
 
 func (o *outbound) generateToken() error {
+	if o.cfg.SpotifyConfig.ClientID == "" || o.cfg.SpotifyConfig.ClientSecret == "" {
+		log.Error().Msg("Spotify client ID or secret is missing")
+		return fmt.Errorf("missing Spotify credentials")
+	}
+
 	formData := url.Values{}
 	formData.Set("grant_type", "client_credentials")
 	formData.Set("client_id", o.cfg.SpotifyConfig.ClientID)
 	formData.Set("client_secret", o.cfg.SpotifyConfig.ClientSecret)
 
-	encodedUrl := formData.Encode()
-	req, err := http.NewRequest(http.MethodPost, `https://account.spotify.com/api/token`, strings.NewReader(encodedUrl))
+	req, err := http.NewRequest(http.MethodPost, "https://accounts.spotify.com/api/token", strings.NewReader(formData.Encode()))
 	if err != nil {
-		log.Error().Err(err).Msg("error create request for spotify")
-		return err 
+		log.Error().Err(err).Msg("error create request for Spotify")
+		return err
 	}
-	req.Header.Set("Content-Type", "aplication/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err :=  o.client.Do(req)
+	resp, err := o.client.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msg("error execute request for spotify")
+		log.Error().Err(err).Msg("error execute request for Spotify")
 		return err
 	}
 	defer resp.Body.Close()
 
-	var response SpotifyResponseToken
-	err=json.NewDecoder(resp.Body).Decode(&response)
+	if resp.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Error().Int("status_code", resp.StatusCode).Str("response_body", string(body)).Msg("failed to fetch token from Spotify")
+		return fmt.Errorf("failed to fetch token, status code: %d", resp.StatusCode)
+	}
 
-	if err != nil {
-		log.Error().Err(err).Msg("error execute unmarshal from spotify")
+	var response SpotifyResponseToken
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		log.Error().Err(err).Msg("error unmarshalling Spotify response")
 		return err
 	}
 
@@ -61,5 +69,4 @@ func (o *outbound) generateToken() error {
 	o.TokenType = response.TokenType
 	o.ExpiredAt = time.Now().Add(time.Duration(response.ExpiresIn) * time.Second)
 	return nil
-
 }

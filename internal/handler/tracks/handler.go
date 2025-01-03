@@ -3,10 +3,10 @@ package tracks
 import (
 	"context"
 
+	"github.com/AthThobari/simple_music_catalog_go/internal/middleware"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/spotify"
 	"github.com/gin-gonic/gin"
 )
-
 
 //go:generate mockgen -source=handler.go -destination=handler_mock_test.go -package=tracks
 type service interface {
@@ -27,5 +27,6 @@ func NewHandler(api *gin.Engine, service service) *Handler {
 
 func (h *Handler) RegisterRoute() {
 	route := h.Group("/tracks")
+	route.Use(middleware.AuthMiddleware())
 	route.GET("/search", h.Search)
 }
