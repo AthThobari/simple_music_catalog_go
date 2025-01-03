@@ -1,6 +1,5 @@
 package spotify
 
-
 var searchResponse = `
 {
   "tracks": {
@@ -106,7 +105,7 @@ var searchResponse = `
           "external_urls": {
             "spotify": "https://open.spotify.com/album/3VWrUk4vBznMYXGMPc7dRB"
           },
-          "href": "https://api.spotify.com/v1/albums/3VWrUk4vBznMYXGMPc7dRB",
+          "href": "https://.spotify.com/v1/albums/3VWrUk4vBznMYXGMPc7dRB",
           "id": "3VWrUk4vBznMYXGMPc7dRB",
           "images": [
             {
