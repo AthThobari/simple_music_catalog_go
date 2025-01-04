@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/spotify"
+	"github.com/AthThobari/simple_music_catalog_go/internal/models/trackactivities"
 	spotifyRepo "github.com/AthThobari/simple_music_catalog_go/internal/repository/spotify"
 	"github.com/rs/zerolog/log"
 )
 
 //go:generate mockgen -source=service.go -destination=service_mock_test.go -package=tracks
-func (s *service) Search(ctx context.Context, query string, pageSize, pageIndex int) (*spotify.SearchResponse, error) {
+func (s *service) Search(ctx context.Context, query string, pageSize, pageIndex int, userID uint) (*spotify.SearchResponse, error) {
 	limit := pageSize
 	offset := (pageIndex - 1) * pageSize
 
@@ -19,10 +20,21 @@ func (s *service) Search(ctx context.Context, query string, pageSize, pageIndex 
 		return nil, err
 	}
 
-	return modelToResponse(trackDetails), nil
+	trackIDs := make([]string, len(trackDetails.Track.Items))
+	for idx, item := range trackDetails.Track.Items {
+		trackIDs[idx] = item.ID
+	}
+
+	trackActivities, err := s.trackActivitiesRepo.GetBulkSpotifyIDs(ctx, userID, trackIDs)
+	if err != nil {
+		log.Error().Err(err).Msg("error get track activities from database")
+		return nil, err
+	}
+
+	return modelToResponse(trackDetails, trackActivities), nil
 }
 
-func modelToResponse(data *spotifyRepo.SpotifySearchResponse) *spotify.SearchResponse {
+func modelToResponse(data *spotifyRepo.SpotifySearchResponse, mapTrackActivities map[string]trackactivities.TrackActivity) *spotify.SearchResponse {
 	if data == nil {
 		return nil
 	}
@@ -54,6 +66,7 @@ func modelToResponse(data *spotifyRepo.SpotifySearchResponse) *spotify.SearchRes
 			Explicit: item.Explicit,
 			ID:       item.ID,
 			Name:     item.Name,
+			IsLiked: mapTrackActivities[item.ID].IsLiked,
 		})
 	}
 

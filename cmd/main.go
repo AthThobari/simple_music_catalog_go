@@ -8,6 +8,7 @@ import (
 	membershipsHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/memberships"
 	trackHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/tracks"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
+	"github.com/AthThobari/simple_music_catalog_go/internal/models/trackactivities"
 	membershipsRepo "github.com/AthThobari/simple_music_catalog_go/internal/repository/memberships"
 	"github.com/AthThobari/simple_music_catalog_go/internal/repository/spotify"
 	membershipsSvc "github.com/AthThobari/simple_music_catalog_go/internal/service/memberships"
@@ -40,12 +41,15 @@ func main() {
 	}
 	log.Println("Connecting to database: ", cfg.Database.DataSourceName)
 
-	if err := db.AutoMigrate(&memberships.User{}); err != nil {
+	if err := db.AutoMigrate(
+		&memberships.User{},
+		&trackactivities.TrackActivity{},
+	); err != nil {
 		log.Fatalf("failed to auto-migrate, err: %+v", err)
 	}
 	log.Println("AutoMigrate completed successfully")
-	
-	r:= gin.Default()
+
+	r := gin.Default()
 
 	httpclient := httpclient.NewClient(&http.Client{})
 
@@ -53,7 +57,7 @@ func main() {
 
 	membershipsRepo := membershipsRepo.NewRepository(db)
 
-    membershipsSvc := membershipsSvc.NewService(cfg, membershipsRepo)	
+	membershipsSvc := membershipsSvc.NewService(cfg, membershipsRepo)
 	trackSvc := tracks.NewService(spotifyOutbound)
 
 	membershipsHandler := membershipsHandler.NewHandler(r, membershipsSvc)
@@ -61,7 +65,6 @@ func main() {
 
 	tracksHandler := trackHandler.NewHandler(r, trackSvc)
 	tracksHandler.RegisterRoute()
-	
 
 	r.Run(cfg.Service.Port)
 }
