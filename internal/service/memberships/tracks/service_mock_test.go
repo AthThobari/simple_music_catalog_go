@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	trackactivities "github.com/AthThobari/simple_music_catalog_go/internal/models/trackactivities"
 	spotify "github.com/AthThobari/simple_music_catalog_go/internal/repository/spotify"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -48,4 +49,85 @@ func (m *MockspotifyOutboound) Search(ctx context.Context, query string, limit, 
 func (mr *MockspotifyOutbooundMockRecorder) Search(ctx, query, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockspotifyOutboound)(nil).Search), ctx, query, limit, offset)
+}
+
+// MocktrackActivitiesRepository is a mock of trackActivitiesRepository interface.
+type MocktrackActivitiesRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MocktrackActivitiesRepositoryMockRecorder
+}
+
+// MocktrackActivitiesRepositoryMockRecorder is the mock recorder for MocktrackActivitiesRepository.
+type MocktrackActivitiesRepositoryMockRecorder struct {
+	mock *MocktrackActivitiesRepository
+}
+
+// NewMocktrackActivitiesRepository creates a new mock instance.
+func NewMocktrackActivitiesRepository(ctrl *gomock.Controller) *MocktrackActivitiesRepository {
+	mock := &MocktrackActivitiesRepository{ctrl: ctrl}
+	mock.recorder = &MocktrackActivitiesRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MocktrackActivitiesRepository) EXPECT() *MocktrackActivitiesRepositoryMockRecorder {
+	return m.recorder
+}
+
+// Create mocks base method.
+func (m *MocktrackActivitiesRepository) Create(ctx context.Context, model trackactivities.TrackActivity) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, model)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MocktrackActivitiesRepositoryMockRecorder) Create(ctx, model interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MocktrackActivitiesRepository)(nil).Create), ctx, model)
+}
+
+// Get mocks base method.
+func (m *MocktrackActivitiesRepository) Get(ctx context.Context, userID uint, spotifyID string) (*trackactivities.TrackActivity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, userID, spotifyID)
+	ret0, _ := ret[0].(*trackactivities.TrackActivity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MocktrackActivitiesRepositoryMockRecorder) Get(ctx, userID, spotifyID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MocktrackActivitiesRepository)(nil).Get), ctx, userID, spotifyID)
+}
+
+// GetBulkSpotifyIDs mocks base method.
+func (m *MocktrackActivitiesRepository) GetBulkSpotifyIDs(ctx context.Context, userID uint, spotifyIDs []string) (map[string]trackactivities.TrackActivity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBulkSpotifyIDs", ctx, userID, spotifyIDs)
+	ret0, _ := ret[0].(map[string]trackactivities.TrackActivity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBulkSpotifyIDs indicates an expected call of GetBulkSpotifyIDs.
+func (mr *MocktrackActivitiesRepositoryMockRecorder) GetBulkSpotifyIDs(ctx, userID, spotifyIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBulkSpotifyIDs", reflect.TypeOf((*MocktrackActivitiesRepository)(nil).GetBulkSpotifyIDs), ctx, userID, spotifyIDs)
+}
+
+// Update mocks base method.
+func (m *MocktrackActivitiesRepository) Update(ctx context.Context, model trackactivities.TrackActivity) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", ctx, model)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MocktrackActivitiesRepositoryMockRecorder) Update(ctx, model interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MocktrackActivitiesRepository)(nil).Update), ctx, model)
 }

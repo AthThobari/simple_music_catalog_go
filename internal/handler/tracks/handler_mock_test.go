@@ -7,9 +7,9 @@ package tracks
 import (
 	context "context"
 	reflect "reflect"
-	"testing"
 
 	spotify "github.com/AthThobari/simple_music_catalog_go/internal/models/spotify"
+	trackactivities "github.com/AthThobari/simple_music_catalog_go/internal/models/trackactivities"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -37,46 +37,30 @@ func (m *Mockservice) EXPECT() *MockserviceMockRecorder {
 }
 
 // Search mocks base method.
-func (m *Mockservice) Search(ctx context.Context, query string, pageSize, pageIndex int) (*spotify.SearchResponse, error) {
+func (m *Mockservice) Search(ctx context.Context, query string, pageSize, pageIndex int, userID uint) (*spotify.SearchResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", ctx, query, pageSize, pageIndex)
+	ret := m.ctrl.Call(m, "Search", ctx, query, pageSize, pageIndex, userID)
 	ret0, _ := ret[0].(*spotify.SearchResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockserviceMockRecorder) Search(ctx, query, pageSize, pageIndex interface{}) *gomock.Call {
+func (mr *MockserviceMockRecorder) Search(ctx, query, pageSize, pageIndex, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*Mockservice)(nil).Search), ctx, query, pageSize, pageIndex)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*Mockservice)(nil).Search), ctx, query, pageSize, pageIndex, userID)
 }
 
-func TestMockservice_Search(t *testing.T) {
-	type args struct {
-		ctx       context.Context
-		query     string
-		pageSize  int
-		pageIndex int
-	}
-	tests := []struct {
-		name    string
-		m       *Mockservice
-		args    args
-		want    *spotify.SearchResponse
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.m.Search(tt.args.ctx, tt.args.query, tt.args.pageSize, tt.args.pageIndex)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Mockservice.Search() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Mockservice.Search() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+// UpsertTrackActivities mocks base method.
+func (m *Mockservice) UpsertTrackActivities(ctx context.Context, userID uint, request trackactivities.TrackActivityRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertTrackActivities", ctx, userID, request)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertTrackActivities indicates an expected call of UpsertTrackActivities.
+func (mr *MockserviceMockRecorder) UpsertTrackActivities(ctx, userID, request interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertTrackActivities", reflect.TypeOf((*Mockservice)(nil).UpsertTrackActivities), ctx, userID, request)
 }

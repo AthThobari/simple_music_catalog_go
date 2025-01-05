@@ -28,7 +28,8 @@ func (h *Handler) Search(c *gin.Context) {
 		log.Printf("Invalid PageIndex '%s', defaulting to %d", pageIndexStr, pageIndex)
 	}
 
-	response, err := h.service.Search(ctx, query, pageSize, pageIndex)
+	userID := c.GetUint("userID")
+	response, err := h.service.Search(ctx, query, pageSize, pageIndex, userID)
 	if err != nil {
 		log.Printf("Error in service.Search: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{

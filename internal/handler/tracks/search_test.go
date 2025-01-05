@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/spotify"
+	"github.com/AthThobari/simple_music_catalog_go/pkg/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -57,7 +58,7 @@ func TestHandler_Search(t *testing.T) {
 			},
 			wantErr: false,
 			mockFn: func() {
-				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1).Return(
+				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1, uint(1)).Return(
 					&spotify.SearchResponse{
 						Items: []spotify.SpotifyTracksObject{
 							{
@@ -93,7 +94,7 @@ func TestHandler_Search(t *testing.T) {
 			expectedBody: spotify.SearchResponse{},
 			wantErr: true,
 			mockFn: func() {
-				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1).Return(nil, assert.AnError)
+				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1, uint(1)).Return(nil, assert.AnError)
 			},
 		},
 	}
@@ -113,6 +114,10 @@ func TestHandler_Search(t *testing.T) {
 
 			req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 			assert.NoError(t, err)
+			token, err := jwt.CreateToken(1, "username", "")
+			assert.NoError(t, err)
+			req.Header.Set("Authorization", token)
+
 			h.ServeHTTP(w, req)
 
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
@@ -122,7 +127,7 @@ func TestHandler_Search(t *testing.T) {
 				defer res.Body.Close()
 
 				response := spotify.SearchResponse{}
-				err = json.Unmarshal(w.Body.Bytes(), &response)
+				_ = json.Unmarshal(w.Body.Bytes(), &response)
 
 				assert.Equal(t, tt.expectedBody, response)
 			}
