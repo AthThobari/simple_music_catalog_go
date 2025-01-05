@@ -31,5 +31,5 @@ func (h *Handler) RegisterRoute() {
 	route := h.Group("/tracks")
 	route.Use(middleware.AuthMiddleware())
 	route.GET("/search", h.Search)
-	route.POST("/tract-activity", h.UpsertTrackActivities)
+	route.POST("/track-activity", h.UpsertTrackActivities)
 }
