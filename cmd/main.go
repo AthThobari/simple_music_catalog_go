@@ -6,6 +6,7 @@ import (
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/configs"
 	membershipsHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/memberships"
+	trackActivitiesRepo "github.com/AthThobari/simple_music_catalog_go/internal/repository/trackactivities"
 	trackHandler "github.com/AthThobari/simple_music_catalog_go/internal/handler/tracks"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/memberships"
 	"github.com/AthThobari/simple_music_catalog_go/internal/models/trackactivities"
@@ -58,7 +59,8 @@ func main() {
 	membershipsRepo := membershipsRepo.NewRepository(db)
 
 	membershipsSvc := membershipsSvc.NewService(cfg, membershipsRepo)
-	trackSvc := tracks.NewService(spotifyOutbound)
+	trackActivitiesRepo := trackActivitiesRepo.NewRepository(db)
+	trackSvc := tracks.NewService(spotifyOutbound, trackActivitiesRepo)
 
 	membershipsHandler := membershipsHandler.NewHandler(r, membershipsSvc)
 	membershipsHandler.RegisterRoute()
