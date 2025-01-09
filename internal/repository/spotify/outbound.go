@@ -8,16 +8,16 @@ import (
 )
 
 type outbound struct {
-	cfg *configs.Config
-	client httpclient.HTTPClient
+	cfg         *configs.Config
+	client      httpclient.HTTPClient
 	AccessToken string
-	TokenType string
-	ExpiredAt time.Time
+	TokenType   string
+	ExpiredAt   time.Time
 }
 
 func NewSpotifyOutbound(cfg *configs.Config, client httpclient.Client) *outbound {
 	return &outbound{
-		cfg: cfg,
+		cfg:    cfg,
 		client: &client,
 	}
 }
