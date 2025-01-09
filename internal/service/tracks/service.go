@@ -9,6 +9,7 @@ import (
 
 type spotifyOutboound interface {
 	Search(ctx context.Context, query string, limit, offset int) (*spotify.SpotifySearchResponse, error)
+	GetRecommendation(ctx context.Context, limit int, trackID string) (*spotify.SpotifySearchResponse, error)
 }
 
 type trackActivitiesRepository interface {
@@ -19,10 +20,10 @@ type trackActivitiesRepository interface {
 }
 
 type service struct {
-	spotifyOutboound spotifyOutboound
+	spotifyOutboound    spotifyOutboound
 	trackActivitiesRepo trackActivitiesRepository
 }
 
 func NewService(spotifyOutboound spotifyOutboound, trackActivitiesRepo trackActivitiesRepository) *service {
-	return &service{spotifyOutboound: spotifyOutboound, trackActivitiesRepo:  trackActivitiesRepo}
+	return &service{spotifyOutboound: spotifyOutboound, trackActivitiesRepo: trackActivitiesRepo}
 }

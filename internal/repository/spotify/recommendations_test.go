@@ -7,27 +7,25 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/AthThobari/simple_music_catalog_go/internal/configs"
 	"github.com/AthThobari/simple_music_catalog_go/pkg/httpclient"
-	"github.com/google/go-cmp/cmp"
-	"github.com/stretchr/testify/assert"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_outbound_Search(t *testing.T) {
+func Test_outbound_GetRecommendation(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockHTTPClient := httpclient.NewMockHTTPClient(mockCtrl)
-	next := "https://api.spotify.com/v1/search?offset=10&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8"
 	type args struct {
-		query  string
-		limit  int
-		offset int
+		limit   int
+		trackID string
 	}
 	tests := []struct {
 		name    string
@@ -39,16 +37,13 @@ func Test_outbound_Search(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				query:  "bohemian rhapsody",
-				limit:  10,
-				offset: 0,
+				limit:   10,
+				trackID: "trackID",
 			},
 			want: &SpotifySearchResponse{
 				Track: SpotifyTracks{
 					HREF:   "https://api.spotify.com/v1/search?offset=0&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8",
 					Limit:  10,
-					Next:   &next,
-					Offset: 0,
 					Items: []SpotifyTracksObject{
 						{
 							Album: SpotifyAlbumObject{
@@ -107,21 +102,17 @@ func Test_outbound_Search(t *testing.T) {
 							Name:     "Bohemian Rhapsody - Remastered 2011",
 						},
 					},
-					Total: 906,
 				},
 			},
 			wantErr: false,
 			mockFn: func(args args) {
 				params := url.Values{}
-				params.Set("q", args.query)
-				params.Set("type", "track")
 				params.Set("limit", strconv.Itoa(args.limit))
-				params.Set("offset", strconv.Itoa(args.offset))
+				params.Set("type", "track")
+				params.Set("seed_tracks", args.trackID)
 
-				basePath := `https://api.spotify.com/v1/search`
+				basePath := `https://api.spotify.com/v1/recommendations`
 				urlPath := fmt.Sprintf("%s?%s", basePath, params.Encode())
-
-				fmt.Println("Mock URL path:", urlPath)
 
 				req, err := http.NewRequest(http.MethodGet, urlPath, nil)
 				assert.NoError(t, err)
@@ -129,32 +120,28 @@ func Test_outbound_Search(t *testing.T) {
 				req.Header.Set("Authorization", "Bearer accessToken")
 				fmt.Println("Mock authorization Header:", req.Header.Get("Authorization"))
 
-				mockHTTPClient.EXPECT().Do(req).Return(&http.Response{
+				mockHTTPClient.EXPECT().Do(gomock.Eq(req)).Return(&http.Response{
 					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString(searchResponse)),
+					Body:       io.NopCloser(bytes.NewBufferString(recommendationResponse)),
 				}, nil)
 			},
 		},
 		{
-			name: "fail",
+			name: "failed",
 			args: args{
-				query:  "bohemian rhapsody",
-				limit:  10,
-				offset: 0,
+				limit:   10,
+				trackID: "trackID",
 			},
-			want:    nil,
+			want: nil,
 			wantErr: true,
 			mockFn: func(args args) {
 				params := url.Values{}
-				params.Set("q", args.query)
-				params.Set("type", "track")
 				params.Set("limit", strconv.Itoa(args.limit))
-				params.Set("offset", strconv.Itoa(args.offset))
+				params.Set("type", "track")
+				params.Set("seed_tracks", args.trackID)
 
-				basePath := `https://api.spotify.com/v1/search`
+				basePath := `https://api.spotify.com/v1/recommendations`
 				urlPath := fmt.Sprintf("%s?%s", basePath, params.Encode())
-
-				fmt.Println("Mock URL path:", urlPath)
 
 				req, err := http.NewRequest(http.MethodGet, urlPath, nil)
 				assert.NoError(t, err)
@@ -162,18 +149,43 @@ func Test_outbound_Search(t *testing.T) {
 				req.Header.Set("Authorization", "Bearer accessToken")
 				fmt.Println("Mock authorization Header:", req.Header.Get("Authorization"))
 
-				mockHTTPClient.EXPECT().Do(req).Return(&http.Response{
-					StatusCode: 500,
-					Body:       io.NopCloser(bytes.NewBufferString("internal server error")),
-				}, nil)
+				mockHTTPClient.EXPECT().Do(gomock.Eq(req)).Return(nil, assert.AnError)
 			},
 		},
-	}
+		{
+			name: "failed: 500",
+			args: args{
+				limit:   10,
+				trackID: "trackID",
+			},
+			want: nil,
+			wantErr: true,
+			mockFn: func(args args) {
+				params := url.Values{}
+				params.Set("limit", strconv.Itoa(args.limit))
+				params.Set("type", "track")
+				params.Set("seed_tracks", args.trackID)
 
+				basePath := `https://api.spotify.com/v1/recommendations`
+				urlPath := fmt.Sprintf("%s?%s", basePath, params.Encode())
+
+				req, err := http.NewRequest(http.MethodGet, urlPath, nil)
+				assert.NoError(t, err)
+
+				req.Header.Set("Authorization", "Bearer accessToken")
+				fmt.Println("Mock authorization Header:", req.Header.Get("Authorization"))
+
+				mockHTTPClient.EXPECT().Do(gomock.Eq(req)).Return(&http.Response{
+					StatusCode: 500,
+					Body: io.NopCloser(bytes.NewBufferString(`Internal Server Error`)),
+					}, nil)
+			},
+		},
+		
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn(tt.args)
-
 			o := &outbound{
 				cfg:         &configs.Config{},
 				client:      mockHTTPClient,
@@ -181,13 +193,13 @@ func Test_outbound_Search(t *testing.T) {
 				TokenType:   "Bearer",
 				ExpiredAt:   time.Now().Add(1 * time.Hour),
 			}
-			got, err := o.Search(context.Background(), tt.args.query, tt.args.limit, tt.args.offset)
+			got, err := o.GetRecommendation(context.Background(), tt.args.limit, tt.args.trackID)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("outbound.Search() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("outbound.GetRecommendation() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("Mismatch (-got +want):\n%s", diff)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("outbound.GetRecommendation() = %v, want %v", got, tt.want)
 			}
 		})
 	}
