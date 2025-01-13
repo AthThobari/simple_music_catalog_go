@@ -30,7 +30,7 @@ func Test_outbound_GetRecommendation(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *SpotifySearchResponse
+		want    *SpotifyRecommendationsResponse
 		wantErr bool
 		mockFn  func(args args)
 	}{
@@ -40,67 +40,63 @@ func Test_outbound_GetRecommendation(t *testing.T) {
 				limit:   10,
 				trackID: "trackID",
 			},
-			want: &SpotifySearchResponse{
-				Track: SpotifyTracks{
-					HREF:   "https://api.spotify.com/v1/search?offset=0&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8",
-					Limit:  10,
-					Items: []SpotifyTracksObject{
-						{
-							Album: SpotifyAlbumObject{
-								AlbumType:   "album",
-								TotalTracks: 22,
-								Images: []SpotifyAlbumImage{
-									{
-										URL: "https://i.scdn.co/image/ab67616d0000b273e8b066f70c206551210d902b",
-									},
-									{
-										URL: "https://i.scdn.co/image/ab67616d00001e02e8b066f70c206551210d902b",
-									},
-									{
-										URL: "https://i.scdn.co/image/ab67616d00004851e8b066f70c206551210d902b",
-									},
-								},
-								Name: "Bohemian Rhapsody (The Original Soundtrack)",
-							},
-							Artists: []SpotifyArtistObject{
+			want: &SpotifyRecommendationsResponse{
+				Tracks: []SpotifyTracksObject{
+					{
+						Album: SpotifyAlbumObject{
+							AlbumType:   "album",
+							TotalTracks: 22,
+							Images: []SpotifyAlbumImage{
 								{
-									HREF: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
-									Name: "Queen",
+									URL: "https://i.scdn.co/image/ab67616d0000b273e8b066f70c206551210d902b",
 								},
-							},
-							Explicit: false,
-							HREF:     "https://api.spotify.com/v1/tracks/3z8h0TU7ReDPLIbEnYhWZb",
-							ID:       "3z8h0TU7ReDPLIbEnYhWZb",
-							Name:     "Bohemian Rhapsody",
-						},
-						{
-							Album: SpotifyAlbumObject{
-								AlbumType:   "compilation",
-								TotalTracks: 17,
-								Images: []SpotifyAlbumImage{
-									{
-										URL: "https://i.scdn.co/image/ab67616d0000b273bb19d0c22d5709c9d73c8263",
-									},
-									{
-										URL: "https://i.scdn.co/image/ab67616d00001e02bb19d0c22d5709c9d73c8263",
-									},
-									{
-										URL: "https://i.scdn.co/image/ab67616d00004851bb19d0c22d5709c9d73c8263",
-									},
-								},
-								Name: "Greatest Hits (Remastered)",
-							},
-							Artists: []SpotifyArtistObject{
 								{
-									HREF: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
-									Name: "Queen",
+									URL: "https://i.scdn.co/image/ab67616d00001e02e8b066f70c206551210d902b",
+								},
+								{
+									URL: "https://i.scdn.co/image/ab67616d00004851e8b066f70c206551210d902b",
 								},
 							},
-							Explicit: false,
-							HREF:     "https://api.spotify.com/v1/tracks/2OBofMJx94NryV2SK8p8Zf",
-							ID:       "2OBofMJx94NryV2SK8p8Zf",
-							Name:     "Bohemian Rhapsody - Remastered 2011",
+							Name: "Bohemian Rhapsody (The Original Soundtrack)",
 						},
+						Artists: []SpotifyArtistObject{
+							{
+								HREF: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
+								Name: "Queen",
+							},
+						},
+						Explicit: false,
+						HREF:     "https://api.spotify.com/v1/tracks/3z8h0TU7ReDPLIbEnYhWZb",
+						ID:       "3z8h0TU7ReDPLIbEnYhWZb",
+						Name:     "Bohemian Rhapsody",
+					},
+					{
+						Album: SpotifyAlbumObject{
+							AlbumType:   "compilation",
+							TotalTracks: 17,
+							Images: []SpotifyAlbumImage{
+								{
+									URL: "https://i.scdn.co/image/ab67616d0000b273bb19d0c22d5709c9d73c8263",
+								},
+								{
+									URL: "https://i.scdn.co/image/ab67616d00001e02bb19d0c22d5709c9d73c8263",
+								},
+								{
+									URL: "https://i.scdn.co/image/ab67616d00004851bb19d0c22d5709c9d73c8263",
+								},
+							},
+							Name: "Greatest Hits (Remastered)",
+						},
+						Artists: []SpotifyArtistObject{
+							{
+								HREF: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
+								Name: "Queen",
+							},
+						},
+						Explicit: false,
+						HREF:     "https://api.spotify.com/v1/tracks/2OBofMJx94NryV2SK8p8Zf",
+						ID:       "2OBofMJx94NryV2SK8p8Zf",
+						Name:     "Bohemian Rhapsody - Remastered 2011",
 					},
 				},
 			},
