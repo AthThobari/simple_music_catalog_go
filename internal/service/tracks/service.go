@@ -9,7 +9,7 @@ import (
 
 type spotifyOutboound interface {
 	Search(ctx context.Context, query string, limit, offset int) (*spotify.SpotifySearchResponse, error)
-	GetRecommendation(ctx context.Context, limit int, trackID string) (*spotify.SpotifySearchResponse, error)
+	GetRecommendation(ctx context.Context, limit int, trackID string) (*spotify.SpotifyRecommendationsResponse, error)
 }
 
 type trackActivitiesRepository interface {

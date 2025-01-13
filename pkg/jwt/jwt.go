@@ -12,7 +12,7 @@ func CreateToken(id uint, username, secretKey string) (string, error) {
 		jwt.MapClaims{
 			"id":       id,
 			"username": username,
-			"exp":      time.Now().Add(10 * time.Minute).Unix(),
+			"exp":      time.Now().Add(60 * time.Minute).Unix(),
 		},
 	)
 	key := []byte(secretKey)
